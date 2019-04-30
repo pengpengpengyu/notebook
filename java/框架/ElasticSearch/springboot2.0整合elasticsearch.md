@@ -551,3 +551,11 @@ public interface Slice<T> extends Streamable<T> {
       }
   }
   ```
+
+## 参考说明
+
+* [官方文档](https://link.jianshu.com/?t=http://docs.spring.io/spring-data/elasticsearch/docs/2.1.3.RELEASE/reference/html/)
+
+* https://chenjiabing666.github.io/2018/09/02/spring-data-elasticsearch/
+
+* https://www.jianshu.com/p/27e1d583aafb
