@@ -202,6 +202,37 @@ public interface UserRepo extends ElasticsearchRepository<User,Integer> {
   * 查询方法定义以`get`或者`find`开头即可
 * 关于es中各种查询，我们可以参照下表进行定义，[文档](https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/#elasticsearch.query-methods.criterions)
 
+| 逻辑关键字          | 关键字表达式                                 |
+|---------------------|----------------------------------------------|
+| AND                 | And                                          |
+| OR                  | Or                                           |
+| AFTER               | After ， IsAfter                             |
+| BEFORE              | Before ， IsBefore                           |
+| CONTAINING          | Containing ， IsContaining ， Contains       |
+| BETWEEN             | Between ， IsBetween                         |
+| ENDING_WITH         | EndingWith ， IsEndingWith ， EndsWith       |
+| EXISTS              | Exists                                       |
+| FALSE               | False ， IsFalse                             |
+| GREATER_THAN        | GreaterThan ， IsGreaterThan                 |
+| GREATER_THAN_EQUALS | GreaterThanEqual ， IsGreaterThanEqual       |
+| IN                  | In ， IsIn                                   |
+| IS                  | Is ， Equals ，（或无关键字）                |
+| IS_EMPTY            | IsEmpty ， Empty                             |
+| IS_NOT_EMPTY        | IsNotEmpty ， NotEmpty                       |
+| IS_NOT_NULL         | NotNull ， IsNotNull                         |
+| IS_NULL             | Null ， IsNull                               |
+| LESS_THAN           | LessThan ， IsLessThan                       |
+| LESS_THAN_EQUAL     | LessThanEqual ， IsLessThanEqual             |
+| LIKE                | Like ， IsLike                               |
+| NEAR                | Near ， IsNear                               |
+| NOT                 | Not ， IsNot                                 |
+| NOT_IN              | NotIn ， IsNotIn                             |
+| NOT_LIKE            | NotLike ， IsNotLike                         |
+| REGEX               | Regex ， MatchesRegex ， Matches             |
+| STARTING_WITH       | StartingWith ， IsStartingWith ， StartsWith |
+| TRUE                | True ， IsTrue                               |
+| WITHIN              | Within ， IsWithin                           |
+
 ### 实例
 
 ```java {.line-numbers}
