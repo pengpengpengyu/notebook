@@ -42,8 +42,8 @@ eaadf4e HEAD@{4}: commit (initial): wrote a readme file
 
 **查看工作区和版本库里的文件差异：** `git diff HEAD -- readme.txt`
 
-**撤销工作区的修改：** `git checkout -- file`
-命令`git checkout -- readme.txt`意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：
+**撤销工作区的修改：** `git checkout file`
+命令`git checkout readme.txt`意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：
 
 一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
 
