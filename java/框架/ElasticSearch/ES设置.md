@@ -187,7 +187,16 @@ PUT expert/_mapping/expert
 		},
 		"technologyReward": {
 		  "type": "keyword"
-    }
+    },
+    "fullText": {
+            "type": "text",
+            "fields": {
+              "ik": {
+                "type": "text",
+                "analyzer": "ik_max_word"
+              }
+            }
+          }
 }
 }
 ```
