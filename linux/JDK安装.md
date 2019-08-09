@@ -37,4 +37,4 @@ Java HotSpot(TM) 64-Bit Server VM (build 24.60-b09, mixed mode)
 之前安装过其他版本JDK重新安装时，配置玩环境变量之后输入`java -version`，显示版本仍然是之前的版本
 
 **解决办法**
-到 `/usr/bin` 找到`java`文件，将其删除或改名即可
+到 `/usr/bin` 找到`java`文件，将其删除或改名然后再执行`source /etc/profile`即可
