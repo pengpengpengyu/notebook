@@ -30,7 +30,12 @@
     "registry-mirrors": ["http://hub-mirror.c.163.com"]
 }
 
-## 删除Docker CE
+ **重载此配置文件**
+`systemctl daemon-reload`
+ **重启 docker**
+`systemctl restart docker`
+
+#### 删除Docker CE
 
 >$ sudo yum remove docker-ce
 
