@@ -7,8 +7,7 @@
 
 ## 下载安装脚本（centos）并执行脚本
 
-`curl -fsSL https://get.docker.com -o get-docker.sh`
-`sh get-docker.sh`
+`curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun`
 
 ## 启动Docker进程
 
