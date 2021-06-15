@@ -17,6 +17,96 @@
 - 最大大小512M
 - 数值最大值java中long的最大值
 
+### DEMO
+
+```bash
+ali:0>set name pywang # 设置值
+"OK"
+ali:0>get name # 获取值
+"pywang"
+ali:0>EXISTS name # 查看key是否存在
+"1"
+ali:0>APPEND name " hello" # 如果已经存在key则追加，否则新增key
+"12"
+ali:0>get name
+"pywang hello"
+ali:0>STRLEN name # value长度
+"12"
+ali:0>set views 0 
+"OK"
+ali:0>get views
+"0"
+ali:0>incr views # value +1 
+"1"
+ali:0>get views
+"1"
+ali:0>incr views
+"2"
+ali:0>get views
+"2"
+ali:0>decr views # value -1
+"1"
+ali:0>get views
+"1"
+ali:0>INCRBY views 10 # value + 10 指定增长
+"11"
+ali:0> get views
+"11"
+ali:0>DECRBY views 10 # value -10 指定减少
+"1"
+ali:0>get views
+"1"
+ali:0>set key2 abdcefg
+"OK"
+ali:0>get key2
+"abdcefg"
+ali:0>SETRANGE key2 1 xx # 从第2个字符开始替换xx
+"7"
+ali:0>get key2
+"axxcefg"
+ali:0>SETEX key3 30 "hello world" #设置过期时间， 设置key3的值为hello ,30秒后过期
+"OK"
+ali:0>get key3
+"hello world"
+ali:0>SETNX mykey "redis" # 不存在再设置（在分布式锁中经常使用），如果key不存在，创建key
+"1"
+ali:0>ttl key3
+"1"
+ali:0>ttl key3
+"-2"
+ali:0>SETNX mykey "MongoDB" # 如果key存在，则创建失败
+"0"
+ali:0>get mykey
+"redis"
+ali:0>MSET k1 v1 k2 v2 k3 v3 # 同时设置多个值
+"OK"
+ali:0>keys *
+1) "k3"
+2) "k1"
+3) "k2"
+ali:0>MGET k1 k2 k3 # 同时获取多个值
+1) "v1"
+2) "v2"
+3) "v3"
+ali:0>MSETNX k1 v1 k4 v4 # MSETNX是原子操作，要么都成功，要么都失败
+"0"
+ali:0>keys *
+1) "k3"
+2) "k1"
+3) "k2"
+ali:0>getset db redis # 如果不存在值，则返回nil，设置新值
+null
+ali:0>get db 
+"redis"
+ali:0>getset db mongodb # 如果不存值，获取原来的值，并设置新值
+"redis"
+ali:0>get db
+"mongodb"
+ali:0>
+```
+
+
+
 ## Hash
 
 - 对一系列存储的数据进行编组，方便管理，典型应用存储对象信息
@@ -132,6 +222,107 @@
 - list具有索引的概念，但是操作数据时通常一队列形式进行入队出队操作，或以栈的形式进行入栈出栈操作
 - 获取全部数据操作，结束索引设置为-1
 - list可以对数据进行分页操作，通常第一页的信息来自于list，第2页及更多的信息通过数据库形式加载
+
+### DEMO
+
+```bash
+ali:0>LPUSH list one # 将一个值或多个值插入到列表头部（左）
+"1"
+ali:0>LPUSH list two 
+"2"
+ali:0>LPUSH list three
+"3"
+ali:0>LRANGE list 0 -1 # 获取list中的值
+1) "three"
+2) "two"
+3) "one"
+ali:0>LRANGE list 0 1 # 通过区间获取具体的值
+1) "three"
+2) "two"
+ali:0>RPUSH list righr # 将一个或多个值插入到列表的尾部（右）
+"4"
+ali:0>LRANGE list 0 -1
+1) "three"
+2) "two"
+3) "one"
+4) "righr"
+ali:0>LPOP list # 从左侧移除值
+"three"
+ali:0>RPOP list # 从右侧移除值
+"righr"
+ali:0>LRANGE list 0 -1
+1) "two"
+2) "one"
+ali:0>lindex list 1 # 通过下标获取list中的某一个值
+"one"
+ali:0>lindex list 0
+"two"
+ali:0>llen list # 返回列表的长度
+"2"
+ali:0>
+#########################################
+ali:0>lpush list one
+"1"
+ali:0>lpush list two
+"2"
+ali:0>lpush list three
+"3"
+ali:0>lpush list three
+"4"
+ali:0>lrange list 0 -1
+1) "three"
+2) "three"
+3) "two"
+4) "one"
+ali:0>lrem list 1 three # 移除list中的1个three,精确匹配
+"1"
+ali:0>lrange list 0 -1
+1) "three"
+2) "two"
+3) "one"
+ali:0>lpush list three
+"4"
+ali:0>lrem list 2 three # 移除list中的2个three
+"2"
+ali:0>lrange list 0 -1
+1) "two"
+2) "one"
+##############################################
+ali:0>rpush mylist  hello
+"1"
+ali:0>rpush mylist hello1
+"2"
+ali:0>rpush mylist hello2
+"3"
+ali:0>rpush mylist hello3
+"4"
+ali:0>ltrim mylist 1 2 # 通过下标截取指定的长度，这个list已经被改变了，只剩下截取的元素
+"OK"
+ali:0>lrange mylist 0 -1
+1) "hello1"
+2) "hello2"
+#############################################
+rpoplpush # 移除列表中的最后一个元素，将他移动到新的列表中
+
+ali:0>rpush mylist hello
+"1"
+ali:0>rpush mylist hello1
+"2"
+ali:0>rpush mylist hello2
+"3"
+ali:0>rpush mylist hello3
+"4"
+ali:0>rpoplpush mylist myotherlist # 移除列表中的最后一个元素，将他移动到新的列表中
+"hello3"
+ali:0>lrange mylist 0 -1
+1) "hello"
+2) "hello1"
+3) "hello2"
+ali:0>lrange myotherlist 0 -1 # 查看移动目标列表，确实存在该值
+1) "hello3"
+```
+
+
 
 ## Set
 
