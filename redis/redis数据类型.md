@@ -320,7 +320,59 @@ ali:0>lrange mylist 0 -1
 3) "hello2"
 ali:0>lrange myotherlist 0 -1 # 查看移动目标列表，确实存在该值
 1) "hello3"
+#####################################
+ali:0>EXISTS list # 判断list是否存在
+"0"
+ali:0>lset list 0 item # 将列表中指定下标的值替换为另一个值，如果不存在列表则会报错
+"ERR no such key"
+ali:0>lpush list value1
+"1"
+ali:0>lrange list 0 0
+1) "value1"
+ali:0>lset list 0 item # 如果存在则更新当前下标的值
+"OK"
+ali:0>lrange list 0 0
+1) "item"
+ali:0>lset list 1 other # 如果不存在下标，则会报错
+"ERR index out of range"
+###############################################
+ali:0>rpush mylist hello
+"1"
+ali:0>rpush mylist " world"
+"2"
+ali:0>linsert mylist befroe world other # 将other字符串插入到mylist 中world字符串之前，如果不存在world字符串则报错
+"ERR syntax error"
+ali:0>linsert mylist before " world" other
+"3"
+ali:0>lrange mylist 0 -1
+1) "hello"
+2) "other"
+3) " world"
+ali:0>linsert mylist after world new
+"-1"
+ali:0>lrange mylist 0 -1
+1) "hello"
+2) "other"
+3) " world"
+ali:0>linsert mylist after " world" new # 将new字符串插入到mylist 中world字符串之后，如果不存在world字符串则报错
+"4"
+ali:0>lrange mylist 0 -1
+1) "hello"
+2) "other"
+3) " world"
+4) "new"
+ali:0>
 ```
+
+
+
+### 小结
+
+- LIST实际上是一个链表，before Node after,left, right 都可以插入值
+- 如果key不存在，创建新的链表
+- 如果key存在，新增内容
+- 如果同意除了所有值，空链表，也代表不存在
+- 在两边插入或改动值，效率最高。中间元素，相对来说效率第一点
 
 
 
@@ -329,6 +381,7 @@ ali:0>lrange myotherlist 0 -1 # 查看移动目标列表，确实存在该值
 - 新的存储需求：存储大量的数据，在查询方面提供更高的效率
 - 需要存储结构：能够保存大量的数据，搞笑的内部存储机制，便于查询
 - set类型：与存储结构完全相同，仅存储key
+- SET中的值是无序的
 
 ### set类型数据的基本操作
 
@@ -349,6 +402,94 @@ ali:0>lrange myotherlist 0 -1 # 查看移动目标列表，确实存在该值
   ```
   srem keyh number1 ...
   ```
+
+
+
+### DEMO
+
+```bash
+ali:0>sadd myset hello # 插入值
+"1"
+ali:0>sadd myset pywang
+"1"
+ali:0>sadd myset loveStudy
+"1"
+ali:0>smembers myset # 遍历SET
+1) "pywang"
+2) "loveStudy"
+3) "hello"
+ali:0>sismember myset hello # 判断某个值是否在set中
+"1"
+ali:0>smembers myset
+1) "pywang"
+2) "loveStudy"
+3) "hello"
+ali:0>scard myset # 获取set中元素的个数
+"3"
+##########################
+ali:0>srem myset hello # 移除set中的指定元素
+"1"
+ali:0>scard myset
+"2"
+###################################################
+ali:0>smembers myset
+1) "pywang"
+2) "hello1"
+3) "hello"
+4) "loveStudy"
+5) "hello2"
+ali:0>srandmember myset # 随机抽选元素
+"hello1"
+ali:0>srandmember myset
+"hello"
+ali:0>srandmember myset
+"loveStudy"
+ali:0>srandmember myset 2 # 随机抽取多个元素
+1) "hello2"
+2) "pywang"
+####################################################
+ali:0>smembers myset
+1) "loveStudy"
+2) "hello"
+3) "hello1"
+4) "hello2"
+ali:0>spop myset # 随机删除元素
+"hello"
+ali:0>smembers myset
+1) "loveStudy"
+2) "hello1"
+3) "hello2"
+#####################################################
+
+ali:0>sadd key1 a
+"1"
+ali:0>sadd key1 b
+"1"
+ali:0>sadd key1 c
+"1"
+ali:0>sadd key2 c
+"1"
+ali:0>sadd key2 d
+"1"
+ali:0>sadd key2 e
+"1"
+ali:0>sdiff key1 key2 # 求差集
+1) "a"
+2) "b"
+ali:0>sinter key1 key2 # 求交集，例如共同好友
+1) "c"
+ali:0>sunion key1 key2 # 求并集
+1) "c"
+2) "e"
+3) "a"
+4) "b"
+5) "d"
+
+```
+
+
+
+
 
 ## Sorted_set
 
