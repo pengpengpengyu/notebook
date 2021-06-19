@@ -177,6 +177,98 @@ ali:0>
 
   
 
+### DEMO
+
+```bash
+ali:0>hset myhash name pywang # set一个具体的key-value
+"1"
+ali:0>hset myhash age 28 
+"1"
+ali:0>hset myhash sex 男
+"1"
+ali:0>hget myhash name # 获取hash中某个字段的值
+"pywang"
+ali:0>hget myhash sex
+"男"
+ali:0>hmset myhash field1 hello field2 world # set多个值
+"OK"
+ali:0>hget myhash field1
+"hello"
+ali:0>hmget myhash field1 field2 # 获取多个值
+1) "hello"
+2) "world"
+ali:0>hgetall myhash
+1)  "name"
+2)  "pywang"
+3)  "age"
+4)  "28"
+5)  "sex"
+6)  "男"
+7)  "field1"
+8)  "hello"
+9)  "field2"
+10) "world"
+###############################################
+ali:0>hdel myhash field1 # 删除指定key字段，对应的value也会被删除
+"1"
+ali:0>hget myhash field1
+null
+##############################################
+ali:0>hlen myhash # 获取键值对的数量
+"4"
+ali:0>hgetall myhash
+1) "name"
+2) "pywang"
+3) "age"
+4) "28"
+5) "sex"
+6) "男"
+7) "field2"
+8) "world"
+
+###############################################
+ali:0>hexists myhash field1 # 判断hash中指定字段是否存在
+"0"
+ali:0>hexists myhash name
+"1"
+##############################################
+ali:0>hkeys myhash # 获取hash中的所有key
+1) "name"
+2) "age"
+3) "sex"
+4) "field2"
+ali:0>hvals myhash # 获取hash中的所有value
+1) "pywang"
+2) "28"
+3) "男"
+4) "world"
+##############################################
+
+ali:0>hset myhash field1 1 
+"1"
+ali:0>hincrby myhash field1 1 # 指定值增量
+"2"
+ali:0>hget myhash field1
+"2"
+ali:0>hincrby myhash field1 -1 
+"1"
+ali:0>hget myhash field1
+"1"
+ali:0>hsetnx myhash field2 hello # 如果field不存在则可以设置
+"1"
+ali:0>hsetnx myhash field2 hello # 如果field存在则不能设置
+"0"
+ali:0>hsetnx myhash field1 hello
+"0"
+ali:0>hgetall myhash
+1) "field1"
+2) "1"
+3) "field2"
+4) "hello"
+```
+
+
+
 ### 注意事项
 
 - hash类型下的value值能存储字符串，不允许存储其他数据类型，不存在嵌套现象。如果数据未找到,对应的值为nil
@@ -538,4 +630,79 @@ ali:0>sunion key1 key2 # 求并集
   zcard key
   zcount key min max
   ```
+  
+
+
+
+### DEMO
+
+```bash
+ali:0>zadd myset 1 one  # 添加一个值one在第1个位置
+"1"
+ali:0>zadd myset 2 two
+"1"
+ali:0>zadd myset 3 three 4 four # 添加多个值
+"2"
+ali:0>zrange myset 0 -1 # 遍历
+1) "one"
+2) "two"
+3) "three"
+4) "four"
+##############################################
+ali:0>zrangebyscore myset -inf +inf # 按照score从小到大排序
+1) "one"
+2) "two"
+3) "three"
+4) "four"
+ali:0>zrevrangebyscore myset +inf -inf # 按照score从大到小排序
+1) "four"
+2) "three"
+3) "two"
+4) "one"
+ali:0>zrangebyscore myset -inf +inf withscores # 显示排序字段
+1) "one"
+2) "1"
+3) "two"
+4) "2"
+5) "three"
+6) "3"
+7) "four"
+8) "4"
+ali:0>zrangebyscore myset -inf 3 withscores # 显示排序字段<=3的数据
+1) "one"
+2) "1"
+3) "two"
+4) "2"
+5) "three"
+6) "3"
+##################################################
+ali:0>zrange myset 0 -1
+1) "one"
+2) "two"
+3) "three"
+4) "four"
+ali:0>zrem myset one # 删除one元素
+"1"
+ali:0>zrange myset 0 -1
+1) "two"
+2) "three"
+3) "four"
+###################################################
+ali:0>zrange myset 0 -1
+1) "two"
+2) "three"
+3) "four"
+ali:0>zcard myset # 获取set中元素数量
+"3"
+#################################################
+ali:0>zrange myset 0 -1
+1) "two"
+2) "three"
+3) "four"
+ali:0>zcount myset 0 1
+"0"
+ali:0>zcount myset 1 3 # 获取指定区间的元素数量
+"2"
+
+```
 
