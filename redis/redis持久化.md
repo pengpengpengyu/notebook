@@ -73,6 +73,21 @@
 
   `shutdown save`
 
+### 恢复rdb文件
+
+1.将rdb文件放在我们redis配置文件中指定的`dir`目录就可以，redis启动的时候会自动检查dump.rdb恢复其中的数据
+
+2.查看需要存放的位置
+
+```bash
+ali:0>config get dir # 
+1) "dir"
+2) "/data" # 如果这个目录存在dum.rdb文件，redis将自动加载数据
+
+```
+
+
+
 ### 优点
 
 - RDB是一个紧凑的压缩二进制文件，存储效率高
@@ -84,7 +99,7 @@
 
 - 无论是执行命令还是利用配置，无法做到时时持久化，具有较大的可能性丢失数据
 - bgsave指令每次运行要执行fork操作创建子进程，要牺牲掉一些性能
-- Redis的众多版本未进行RDB文件格式的版本同意，有可能出现个版本服务之间数据格式无法兼容现象
+- Redis的众多版本未进行RDB文件格式的版本统一，有可能出现个版本服务之间数据格式无法兼容现象
 
 ## AOF
 
@@ -104,6 +119,16 @@
 - no（系统控制）
 
   由操作系统控制每次同步到AOF的周期，整体过程不可控
+  
+- 配置
+
+  ```
+  appendfsync always|everysec|no
+  ```
+
+- 作用
+
+  AOF写数据策略
 
 ### AOF功能开启
 
@@ -115,17 +140,8 @@
 
   作用
 
-  是否开启FOR持久化共鞥，默认为不开启状态
+  是否开启FOR持久化功能，默认为不开启状态
 
-- 配置
-
-  ```
-  appendfsync always|everysec|no
-  ```
-
-- 作用
-
-  AOF写数据策略
 
 ### AOF重写规则
 
@@ -173,4 +189,21 @@ auto-aof-rewrite-percentage percentage
   aof_base_size
   ```
 
-  
+
+### 注意事项
+
+- 如果aof文件有错误，redis是启动不起来的，需要修复aof文件，redis提供了一个工具`redis-check-aof --fix appendonly.aof` 
+
+### 优点
+
+- 每次修改都同步，数据备份的完整性更好
+- 每秒同步一次，可能会丢i是一秒的数据
+- 从不同步不，效率最高
+
+### 缺点
+
+- 相对于数据文件来说，aof远大于rdb,修复速度慢
+- aof运行效率比rdb慢，所以redis默认持久化配置是rdb而不是aof
+
+
+
