@@ -193,6 +193,7 @@ auto-aof-rewrite-percentage percentage
 ### 注意事项
 
 - 如果aof文件有错误，redis是启动不起来的，需要修复aof文件，redis提供了一个工具`redis-check-aof --fix appendonly.aof` 
+- aof文件是无限增加，会越来越大
 
 ### 优点
 
