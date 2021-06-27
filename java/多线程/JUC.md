@@ -777,3 +777,252 @@ class Phone4 {
 new this 锁的是具体的一个对象
 
 static 锁的是类
+
+## 集合安全
+
+> list
+
+```java
+package com.example.juc.lock.unsafe;
+
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * ConcurrentModificationException 并发修改异常
+ */
+public class ListTest {
+
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<>();
+
+        /**
+         解决方案
+         List<String> list1 = Collections.synchronizedList(new ArrayList<>());
+         List<String> list2 = new CopyOnWriteArrayList<>();
+         List<String> list3 = new Vector<>();
+         */
+
+        for (int i = 0; i < 100; i++) {
+            new Thread(() -> {
+                list.add(UUID.randomUUID().toString().substring(0, 5));
+                System.out.println(list);
+            }, "A").start();
+        }
+    }
+}
+
+
+```
+
+> set
+
+```java
+package com.example.juc.lock.unsafe;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+public class SetTest {
+
+    public static void main(String[] args) {
+        Set<String> set = new HashSet<>();
+
+        /**
+         * 解决方案
+         * Set<String> set = Collections.synchronizedSet(new HashSet<>());
+         * Set<String> set = new CopyOnWriteArraySet<>();
+         * */
+        for (int i = 0; i < 50; i++) {
+            new Thread(() -> {
+                set.add(UUID.randomUUID().toString().substring(0, 5));
+                System.out.println(set);
+            }, String.valueOf(i)).start();
+        }
+    }
+}
+```
+
+## Callable
+
+1. 可以有返回值
+2. 可以抛出异常
+3. 与runnable接口方法不同，run()/call()
+
+```java
+package com.example.juc.lock.callable;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+public class CallableTRest {
+
+    public static void main(String[] args) {
+        MyThread callable = new MyThread();
+        FutureTask<String> futureTask = new FutureTask<>(callable);
+        new Thread(futureTask, "A").start();
+        new Thread(futureTask, "B").start();  // 指挥打印一次”执行啦“，结果会被缓存，提高效率
+        try {
+            System.out.println(futureTask.get());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class MyThread implements Callable<String> {
+
+    @Override
+    public String call() throws Exception {
+        System.out.println("执行啦");
+        return "TEST";
+    }
+}
+
+```
+
+> 细节
+
+1. 有缓存
+2. 获取结果需要等待可能阻塞
+
+## 常用组织类
+
+### CountDownLatch
+
+**减法计数器**
+
+```java
+package com.example.juc.lock.add;
+
+import java.util.concurrent.CountDownLatch;
+
+/**
+ * 计数器
+ * 必须要执行的任务的时候再使用
+ */
+public class CountDownLatchDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        // 总数是6
+        CountDownLatch countDownLatch = new CountDownLatch(6);
+
+        for (int i = 0; i < 6; i++) {
+            new Thread(() -> {
+                System.out.println(Thread.currentThread().getName() + " Go out");
+                // 数量 -1
+                countDownLatch.countDown();
+            }, String.valueOf(i)).start();
+        }
+
+        // 等待计数器归零，然后向下执行
+        countDownLatch.await();
+
+        System.out.println("close door");
+    }
+}
+```
+
+> 原理
+
+countDownLatch.countDown(); // 数量-1
+
+countDownLatch.await(); // 等待计数器归零，然后向下执行
+
+每次有线程调用countDown()数量-1，假设计数器变为0，countDownLatch.await()就会被唤醒，继续执行
+
+### CyclicBarrier
+
+**加法计数器**
+
+```java
+package com.example.juc.lock.add;
+
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+/**
+ * 加法计数器
+ */
+public class CyclicBarrierDemo {
+    public static void main(String[] args) {
+        /**
+         * 集齐7颗龙珠召唤神龙
+         */
+
+        // 召唤龙珠的线程
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(7, () -> System.out.println("召唤神龙成功"));
+
+        for (int i = 1; i <= 7; i++) {
+            int temp = i;
+            new Thread(() -> {
+                System.out.println(Thread.currentThread().getName() + "收集了第" + temp + "个龙珠");
+                try {
+                    // 等待
+                    cyclicBarrier.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+            }, String.valueOf(i)).start();
+        }
+    }
+}
+```
+
+### Semaphore
+
+**信号量**
+
+```java
+package com.example.juc.lock.add;
+
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 信号量
+ */
+public class SemaphoreDemo {
+
+    public static void main(String[] args) {
+
+        // 线程数量： 停车位，限流
+        Semaphore semaphore = new Semaphore(3);
+
+        for (int i = 1; i <= 6; i++) {
+            new Thread(() -> {
+                try {
+                    // 得到
+                    semaphore.acquire();
+                    System.out.println(Thread.currentThread().getName() + "抢到车位");
+                    TimeUnit.SECONDS.sleep(2);
+                    System.out.println(Thread.currentThread().getName() + "离开车位");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    // 释放
+                    semaphore.release();
+                }
+            }, String.valueOf(i)).start();
+        }
+    }
+}
+```
+
+> 原理
+
+`semaphore.acquire();` 获取，假设已经满了，等待，等待被释放为止
+
+`semaphore.release();` 释放，会将当前的信号量释放+1,然后唤醒等待线程
+
+作用：多个共享资源互斥的使用，并发限流，控制最大的线程数
+
