@@ -233,7 +233,7 @@ class A {
 }
 ```
 
-> JUC版本
+> JUC版本 用Condition控制
 
 ```java
 package com.example.juc.lock;
@@ -895,7 +895,7 @@ class MyThread implements Callable<String> {
 
 ## 常用组织类
 
-### CountDownLatch
+### CountDownLatch 减法计数器
 
 **减法计数器**
 
@@ -938,7 +938,7 @@ countDownLatch.await(); // 等待计数器归零，然后向下执行
 
 每次有线程调用countDown()数量-1，假设计数器变为0，countDownLatch.await()就会被唤醒，继续执行
 
-### CyclicBarrier
+### CyclicBarrier 加法计数器
 
 **加法计数器**
 
@@ -978,7 +978,7 @@ public class CyclicBarrierDemo {
 }
 ```
 
-### Semaphore
+### Semaphore 信号量
 
 **信号量**
 
@@ -1025,4 +1025,104 @@ public class SemaphoreDemo {
 `semaphore.release();` 释放，会将当前的信号量释放+1,然后唤醒等待线程
 
 作用：多个共享资源互斥的使用，并发限流，控制最大的线程数
+
+## 读写锁
+
+**ReentrantReadWriteLock**
+
+```java
+package com.example.juc.lock.rw;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+/**
+ * 独占锁（写锁） 一次只能被一个线程占有
+ * 共享锁（读锁） 多个线程可以同时占有
+ *
+ * 读-读 可以共存
+ * 读-写 不能共存
+ * 写-写 不能共存
+ */
+public class ReadWriteLockDemo {
+
+    public static void main(String[] args) {
+        MyCacheLock myCache = new MyCacheLock();
+
+        for (int i = 1; i <= 100; i++) {
+            int temp = i;
+            new Thread(() -> myCache.put(temp + "", temp + ""), String.valueOf(i)).start();
+        }
+
+        for (int i = 1; i <= 10; i++) {
+            int temp = i;
+            new Thread(() -> myCache.get(temp + ""), String.valueOf(i)).start();
+        }
+
+    }
+}
+
+/**
+ * 自定义缓存
+ */
+class MyCache {
+    private volatile Map<String, Object> map = new HashMap<>();
+
+    public void put(String key, Object value) {
+        System.out.println(Thread.currentThread().getName() + "写入" + key);
+        map.put(key, value);
+        System.out.println(Thread.currentThread().getName() + "写入OK");
+    }
+
+    public void get(String key) {
+        System.out.println(Thread.currentThread().getName() + "读取" + key);
+        Object o = map.get(key);
+        System.out.println(Thread.currentThread().getName() + "读取OK");
+    }
+}
+
+/**
+ * 加锁缓存
+ */
+class MyCacheLock {
+
+    private volatile Map<String, Object> map = new HashMap<>();
+
+    // 读写锁：更加细粒度的控制
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
+    public void put(String key, Object value) {
+        readWriteLock.writeLock().lock();
+        try {
+            System.out.println(Thread.currentThread().getName() + "写入" + key);
+            map.put(key, value);
+            System.out.println(Thread.currentThread().getName() + "写入OK");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    public void get(String key) {
+        readWriteLock.readLock().lock();
+        try {
+            System.out.println(Thread.currentThread().getName() + "读取" + key);
+            Object o = map.get(key);
+            System.out.println(Thread.currentThread().getName() + "读取OK");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
+}
+
+```
+
+## 阻塞队列
+
+> 阻塞
 
