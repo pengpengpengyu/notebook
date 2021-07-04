@@ -98,11 +98,12 @@ ali:0>getset db redis # 如果不存在值，则返回nil，设置新值
 null
 ali:0>get db 
 "redis"
-ali:0>getset db mongodb # 如果不存值，获取原来的值，并设置新值
+ali:0>getset db mongodb # 如果存在值，获取原来的值，并设置新值
 "redis"
 ali:0>get db
 "mongodb"
-ali:0>
+ali:0>del lock  # 删除key
+"1"
 ```
 
 
@@ -630,7 +631,6 @@ ali:0>sunion key1 key2 # 求并集
   zcard key
   zcount key min max
   ```
-  
 
 
 
