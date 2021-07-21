@@ -39,3 +39,11 @@
 >$ sudo yum remove docker-ce
 
 >$ sudo rm -rf /var/lib/docker
+
+## 卸载Docker
+
+> ```shell
+> yum remove docker-ce docker-ce-cli containerd.io
+>  rm -rf /var/lib/docker  # 删除docker默认安装路径
+>  rm -rf /var/lib/containerd  ## 删除卷
+> ```
