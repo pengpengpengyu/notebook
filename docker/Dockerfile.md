@@ -38,3 +38,92 @@ ENV			# 构建镜像时设置环境变量,该变量一直存在
 ARG			# 构建是设置环境变量，构建结束变量删除
 ```
 
+## 实战测试
+
+```bash
+# 1. 编写Dockerfile文件
+[root@pywang Dockerfile]# cat myDockerfile
+FROM centos
+MAINTAINER pywang<985218143@qq.com>
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+RUN yum -y install vim && yum -y install net-tools
+EXPOSE 80
+CMD echo $MYPATH
+CMD echo "======end====="
+CMD /bin/bash
+
+# 2. 构建镜像
+# 命令  docker build -t 镜像名:[tag] -f DockerFile文件路径 .
+# 构建成功后返回
+Successfully built 84415c4d4fdb
+Successfully tagged mycentos:latest
+```
+
+### CMD 和ENTRYPOINT 区别
+
+#### CMD
+
+```bash
+## CMD
+# 1. 编写Dockerfile
+FROM alpine
+CMD ["ls", "-a"]
+
+# 2. 构建镜像
+ docker build -t testcmd:0.1 -f mytestCmdDockerfile .
+ 
+# 3. 运行容器
+[root@pywang Dockerfile]# docker run -it --rm testcmd:0.1
+.           dev         media       root        sys
+..          etc         mnt         run         tmp
+.dockerenv  home        opt         sbin        usr
+bin         lib         proc        srv         var
+
+# 4. 执行成功
+# 如果docker run时想追加命令则会失败
+[root@pywang Dockerfile]# docker run -it --rm testcmd:0.1 -l
+docker: Error response from daemon: OCI runtime create failed: container_linux.go:367: starting container process caused: exec: "-l": executable file not found in $PATH: unknown.
+```
+
+#### ENTRYPOINT
+
+```bash
+## ENTYPOINT
+# 1. 编写Dockerfile
+FROM alpine
+ENTRYPOINT ["ls", "-a"]
+
+# 2. 构建镜像
+ docker build -t testentrypoint:0.1 -f Dockerfile-entrypoint .
+# 3. 运行容器
+[root@pywang Dockerfile]# docker run -it --rm testentrypoint:0.1
+.           dev         media       root        sys
+..          etc         mnt         run         tmp
+.dockerenv  home        opt         sbin        usr
+bin         lib         proc        srv         var
+# 如果docker run时想追加命令，则成功
+[root@pywang Dockerfile]# docker run -it --rm testentrypoint:0.1 -l
+total 8
+drwxr-xr-x    1 root     root             6 Jul 27 15:13 .
+drwxr-xr-x    1 root     root             6 Jul 27 15:13 ..
+-rwxr-xr-x    1 root     root             0 Jul 27 15:13 .dockerenv
+drwxr-xr-x    2 root     root          4096 Jun 15 14:34 bin
+drwxr-xr-x    5 root     root           360 Jul 27 15:13 dev
+drwxr-xr-x    1 root     root            66 Jul 27 15:13 etc
+drwxr-xr-x    2 root     root             6 Jun 15 14:34 home
+drwxr-xr-x    7 root     root           247 Jun 15 14:34 lib
+drwxr-xr-x    5 root     root            44 Jun 15 14:34 media
+drwxr-xr-x    2 root     root             6 Jun 15 14:34 mnt
+drwxr-xr-x    2 root     root             6 Jun 15 14:34 opt
+dr-xr-xr-x  113 root     root             0 Jul 27 15:13 proc
+drwx------    2 root     root             6 Jun 15 14:34 root
+drwxr-xr-x    2 root     root             6 Jun 15 14:34 run
+drwxr-xr-x    2 root     root          4096 Jun 15 14:34 sbin
+drwxr-xr-x    2 root     root             6 Jun 15 14:34 srv
+dr-xr-xr-x   13 root     root             0 Jul 27 15:13 sys
+drwxrwxrwt    2 root     root             6 Jun 15 14:34 tmp
+drwxr-xr-x    7 root     root            66 Jun 15 14:34 usr
+drwxr-xr-x   12 root     root           137 Jun 15 14:34 var
+```
+
