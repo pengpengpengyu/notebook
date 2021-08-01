@@ -127,3 +127,28 @@ drwxr-xr-x    7 root     root            66 Jun 15 14:34 usr
 drwxr-xr-x   12 root     root           137 Jun 15 14:34 var
 ```
 
+## 发布镜像到DockerHub
+
+1. 注册DockerHub账号
+
+2. 在服务器登录账号
+
+   ```shell
+   [root@pywang testCentos]# docker login -u985218143
+   Password:
+   WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+   Configure a credential helper to remove this warning. See
+   https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+   
+   Login Succeeded
+   [root@pywang testCentos]#              
+   ```
+
+3. 提交镜像
+
+   ```shell
+   docker push 985218143/centos:1.0
+   ```
+
+   
+
